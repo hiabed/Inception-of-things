@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# Install dependencies
+apt-get update -y
+# apt-get install -y curl
+
+# Install K3s in server mode
+# No K3S_URL → server mode → creates cluster
+# --write-kubeconfig-mode 644 → kubectl works without sudo
+curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--write-kubeconfig-mode 644 --node-ip=192.168.56.110" sh -
+
+# # Wait for K3s to be ready
+sleep 10
+
+# # Save the node token so the agent can use it to join
+cp /var/lib/rancher/k3s/server/node-token /vagrant/node-token
