@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Install dependencies
-apt-get update -y
+# apt-get update -y
 # apt-get install -y curl
 
 # Wait for the server to be ready and token to be available

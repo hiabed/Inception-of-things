@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Install dependencies
-apt-get update -y
+# apt-get update -y
 # apt-get install -y curl
 
 # Install K3s in server mode
@@ -12,5 +12,5 @@ curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--write-kubeconfig-mode 644 --n
 # # Wait for K3s to be ready
 sleep 10
 
-# # Save the node token so the agent can use it to join
+# Save the node token from /var/lib/rancher/k3s/server/node-token to a shared location so the agent can use it to join
 cp /var/lib/rancher/k3s/server/node-token /vagrant/node-token
