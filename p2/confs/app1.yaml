@@ -1,50 +1,57 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: Deployment 
 metadata:
-  name: app-one
+  name: app-one-deployment
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: app-one
+      app: app-one-pod # this is label for the services to target the pods created by this deployment
   template:
     metadata:
       labels:
-        app: app-one
+        app: app-one-pod
     spec:
       containers:
-      - name: app-one
-        image: paulbouwer/hello-kubernetes:1.10
-        ports:
-        - containerPort: 8080
-        env:
-        - name: MESSAGE
-          value: "Hello from app1."
+        - name: app-one-container
+          image: paulbouwer/hello-kubernetes:1.10
+          ports:
+            - containerPort: 8080
+          env:
+            - name: MESSAGE
+              value: "Hello from app1."
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: app-one
+  name: app-one-service
 spec:
   selector:
-    app: app-one
+    app: app-one-pod
   ports:
-  - port: 80
-    targetPort: 8080
+    - port: 80
+      targetPort: 8080
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: app-one
+  name: app-one-ingress
 spec:
   rules:
-  - host: app1.com
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: app-one
-            port:
-              number: 80
+    - host: app1.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: app-one-service
+                port:
+                  number: 80
+
+# Your file actually creates three different resources, and only one of them indirectly creates pods.
+    # 1. an application running in a pod, which is created by the Deployment. 
+    # 2. a stable internal network endpoint for it to be reached from within the cluster.
+    # 3. HTTP routing rules to reach it from outside the cluster.
+# The Deployment creates pods, while the Service and Ingress do not create any pods themselves.
+# The Deployment creates pods that run the application, while the Service and Ingress are used to expose the application to external traffic.

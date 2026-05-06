@@ -1,50 +1,52 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: app-two
-spec:
-  replicas: 3
+  name: app-two-deployment # name of the deployment resource
+spec: # 1. Deployment spec — "how to manage pods"
+  replicas: 3 # run 3 identical pods for app-two
   selector:
     matchLabels:
-      app: app-two
+      app: app-two-pod # manage pods that have this label
   template:
     metadata:
       labels:
-        app: app-two
-    spec:
+        app: app-two-pod # label applied to each pod created
+    spec: # 2. Pod spec — "what runs inside each pod"
       containers:
-      - name: app-two
-        image: paulbouwer/hello-kubernetes:1.10
-        ports:
-        - containerPort: 8080
-        env:
-        - name: MESSAGE
-          value: "Hello from app2."
+        - name: app-two-container # container name inside the pod
+          image: paulbouwer/hello-kubernetes:1.10
+          ports:
+            - containerPort: 8080 # port the app listens on inside the container
+          env:
+            - name: MESSAGE
+              value: "Hello from app2."
+
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: app-two
+  name: app-two-service # name of the service resource
 spec:
   selector:
-    app: app-two
+    app: app-two-pod # route traffic to pods with this label
   ports:
-  - port: 80
-    targetPort: 8080
+    - port: 80 # port the service exposes internally
+      targetPort: 8080 # forwards to the container port
+
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: app-two
+  name: app-two-ingress # name of the ingress resource
 spec:
   rules:
-  - host: app2.com
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: app-two
-            port:
-              number: 80
+    - host: app2.com # match requests with this Host header
+      http:
+        paths:
+          - path: / # match all paths
+            pathType: Prefix
+            backend:
+              service:
+                name: app-two-service # forward to this service
+                port:
+                  number: 80 # port the service listens on

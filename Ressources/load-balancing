@@ -1,0 +1,7 @@
+Traefik reads Ingress rule
+      ↓
+forwards to Service (not directly to pods)
+      ↓
+Service picks a pod (load balancing happens HERE)
+      ↓
+request reaches pod
