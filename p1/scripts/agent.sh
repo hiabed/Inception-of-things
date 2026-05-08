@@ -11,7 +11,7 @@ while [ ! -f /vagrant/node-token ]; do # while the node token file does not exis
 done
 
 # store the token in a variable to use it for joining the cluster
-TOKEN=$(cat /vagrant/node-token)kubectl get pods -A
+TOKEN=$(cat /vagrant/node-token)
 
 # # Join the K3s server as an agent
 curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--node-ip=192.168.56.111"  K3S_URL=https://192.168.56.110:6443 K3S_TOKEN=$TOKEN sh -
