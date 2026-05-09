@@ -1,19 +1,20 @@
 #!/bin/bash
 
-# Install dependencies
-# apt-get update -y
-# apt-get install -y curl
+NODE_IP="192.168.56.110"
+PRIVATE_IFACE=$(ip -o -4 addr show | grep "${NODE_IP}" | awk '{print $2}')
+GATEWAY="192.168.56.1"
 
 # Install K3s in server mode
-# No K3S_URL → server mode → creates cluster
-# --write-kubeconfig-mode 644 → kubectl works without sudo
-curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--write-kubeconfig-mode 644 --node-ip=192.168.56.110 --flannel-iface=enp0s8" sh -
+curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--write-kubeconfig-mode 644 --node-ip=${NODE_IP} --flannel-iface=${PRIVATE_IFACE}" sh -
 
-# Wait for K3s to be ready
-kubectl wait --for=condition=Ready node/mhassanis --timeout=60s
+# Wait for K3s API to be ready
+until kubectl get nodes >/dev/null 2>&1; do
+  sleep 2
+done
 
-# Save the node token from /var/lib/rancher/k3s/server/node-token to a shared location so the agent can use it to join
+# Share token with agent via shared folder
 cp /var/lib/rancher/k3s/server/node-token /vagrant/node-token
 
-ip route del default # Remove the default route to avoid conflicts with the host's network
-ip route add default via 192.168.56.1 dev enp0s8 # Add a new default route through the host's gateway to ensure connectivity to the server
+# Replace NAT default route with private network
+ip route del default
+ip route add default via ${GATEWAY} dev ${PRIVATE_IFACE}

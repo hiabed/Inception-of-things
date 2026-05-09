@@ -1,26 +1,27 @@
 #!/bin/bash
 
 NODE_IP="192.168.56.110"
-HOST_GATEWAY="192.168.56.1"
-PRIVATE_IFACE="enp0s8"
+GATEWAY="192.168.56.1"
+PRIVATE_IFACE=$(ip -o -4 addr show | grep "${NODE_IP}" | awk '{print $2}')
 
-# 1) Install K3s on the VM
-# --write-kubeconfig-mode 644 lets kubectl work without sudo.
+# Install K3s in server mode
 curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--write-kubeconfig-mode 644 --node-ip=${NODE_IP} --flannel-iface=${PRIVATE_IFACE}" sh -
 
-# 2) Wait until the Kubernetes API answers
+# Wait until the Kubernetes API is ready
 until kubectl get nodes >/dev/null 2>&1; do
   sleep 2
 done
 
-# 3) Apply all manifests (apps + ingress)
+# Apply all app manifests
 kubectl apply -f /vagrant/confs/
 
-# 4) Wait for Traefik ingress controller to exist, then become ready
-until kubectl -n kube-system get deployment traefik >/dev/null 2>&1; do
-  sleep 2
-done
-kubectl -n kube-system wait --for=condition=Available deployment/traefik --timeout=300s
+sleep 10 # wait a bit for the pods to start before checking their status with until loop.
 
-# 5) Set the VM default route through the host-only interface
-ip route replace default via "${HOST_GATEWAY}" dev "${PRIVATE_IFACE}"
+# Wait for ALL pods across all namespaces to be running
+until kubectl get pods -A | grep -v "Running" | grep -v "Completed" | grep -v "NAME" | wc -l | grep -q "^0$"; do
+  sleep 5
+done
+
+# Set private network as default route (primary interface)
+ip route del default
+ip route add default via ${GATEWAY} dev ${PRIVATE_IFACE}
