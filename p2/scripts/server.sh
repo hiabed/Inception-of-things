@@ -22,6 +22,13 @@ until kubectl get pods -A | grep -v "Running" | grep -v "Completed" | grep -v "N
   sleep 5
 done
 
+# Wait for Traefik
+until kubectl -n kube-system get deployment traefik >/dev/null 2>&1; do
+  sleep 2
+done
+
+kubectl -n kube-system rollout status deployment/traefik --timeout=300s # Wait for Traefik to be fully rolled out with a timeout of 5 minutes
+
 # Set private network as default route
 ip route del default dev eth0
 ip route add default via ${GATEWAY} dev ${PRIVATE_IFACE}
