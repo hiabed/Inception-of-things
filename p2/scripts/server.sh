@@ -22,6 +22,6 @@ until kubectl get pods -A | grep -v "Running" | grep -v "Completed" | grep -v "N
   sleep 5
 done
 
-# Set private network as default route (primary interface)
-ip route del default
+# Set private network as default route
+ip route del default dev eth0
 ip route add default via ${GATEWAY} dev ${PRIVATE_IFACE}

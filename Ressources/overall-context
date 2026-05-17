@@ -1,4 +1,0 @@
-1. First, the request passes through Traefik, which acts as the Ingress controller and listens for external HTTP requests.
-2. Then, Ingress checks the Host header and forwards the request to the correct Service.
-3. The Service selects the matching Pods and can load balance traffic between them if there are multiple replicas.
-4. These Pods are created and managed by the Deployment.

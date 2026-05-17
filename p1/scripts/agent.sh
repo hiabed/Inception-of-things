@@ -2,7 +2,8 @@
 
 NODE_IP="192.168.56.111"
 SERVER_IP="192.168.56.110"
-PRIVATE_IFACE=$(ip -o -4 addr show | grep "${NODE_IP}" | awk '{print $2}')
+PRIVATE_IFACE="$(ip -o -4 addr show | grep "${NODE_IP}" | awk '{print $2}')" # Get the interface name associated with the NODE_IP
+# ip -o -4 It lists all network interfaces with their IPv4 addresses, one per line -> We grep for the line containing our NODE_IP -> use awk to extract the second field, which is the interface name.
 GATEWAY="192.168.56.1"
 
 # Wait for server token
@@ -18,6 +19,6 @@ until systemctl is-active --quiet k3s-agent; do
   sleep 2
 done
 
-# Replace NAT default route with private network
-ip route del default
+# Set private network as default route
+ip route del default dev eth0
 ip route add default via ${GATEWAY} dev ${PRIVATE_IFACE}

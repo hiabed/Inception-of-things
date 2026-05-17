@@ -15,6 +15,6 @@ done
 # Share token with agent via shared folder
 cp /var/lib/rancher/k3s/server/node-token /vagrant/node-token
 
-# Replace NAT default route with private network
-ip route del default
+# Set private network as default route
+ip route del default dev eth0
 ip route add default via ${GATEWAY} dev ${PRIVATE_IFACE}

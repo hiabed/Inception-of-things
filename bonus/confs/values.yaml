@@ -1,0 +1,96 @@
+# Expect roughly 3 vCPU / 6–8 GiB RAM free on the VM; GitLab remains heavy even when minimized.
+
+global:
+  edition: ce
+  kas:
+    enabled: false
+  registry:
+    enabled: false
+  ingress:
+    configureCertmanager: false
+    enabled: false
+  hosts:
+    domain: k3d.local
+    https: false
+    gitlab:
+      name: gitlab
+  rails:
+    bootsnap:
+      enabled: false
+
+certmanager:
+  install: false
+
+nginx-ingress:
+  enabled: false
+
+prometheus:
+  install: false
+
+gitlab-runner:
+  install: false
+
+registry:
+  enabled: false
+
+gitlab:
+  webservice:
+    minReplicas: 1
+    maxReplicas: 1
+    workerProcesses: 2
+  sidekiq:
+    minReplicas: 1
+    maxReplicas: 1
+  gitlab-shell:
+    minReplicas: 1
+    maxReplicas: 1
+  gitaly:
+    persistence:
+      size: 2Gi
+  toolbox:
+    persistence:
+      enabled: false
+
+minio:
+  persistence:
+    size: 2Gi
+
+postgresql:
+  image:
+    repository: bitnamilegacy/postgresql
+  volumePermissions:
+    enabled: false
+    image:
+      repository: bitnamilegacy/os-shell
+  metrics:
+    image:
+      repository: bitnamilegacy/postgres-exporter
+  primary:
+    persistence:
+      size: 2Gi
+
+redis:
+  image:
+    repository: bitnamilegacy/redis
+  metrics:
+    image:
+      repository: bitnamilegacy/redis-exporter
+  sentinel:
+    enabled: false
+    image:
+      repository: bitnamilegacy/redis-sentinel
+  kubectl:
+    enabled: false
+    image:
+      repository: bitnamilegacy/kubectl
+  sysctl:
+    enabled: false
+    image:
+      repository: bitnamilegacy/os-shell
+  volumePermissions:
+    enabled: false
+    image:
+      repository: bitnamilegacy/os-shell
+  master:
+    persistence:
+      size: 256Mi
